@@ -17,9 +17,9 @@ export function analyze(expression: any) {
 			} else if (/Function/.test(node.type)) {
 				if (node.type === 'FunctionDeclaration') {
 					scope.declarations.set(node.id.name, node);
-					scope = new Scope(scope, false);
+					map.set(node, scope = new Scope(scope, false));
 				} else {
-					scope = new Scope(scope, false);
+					map.set(node, scope = new Scope(scope, false));
 					if (node.id) scope.declarations.set(node.id.name, node);
 				}
 
@@ -29,13 +29,13 @@ export function analyze(expression: any) {
 					});
 				});
 			} else if (/For(?:In|Of)?Statement/.test(node.type)) {
-				scope = new Scope(scope, true);
+				map.set(node, scope = new Scope(scope, true));
 			} else if (node.type === 'BlockStatement') {
-				scope = new Scope(scope, true);
+				map.set(node, scope = new Scope(scope, true));
 			} else if (/(Class|Variable)Declaration/.test(node.type)) {
 				add_declaration(scope, node);
 			} else if (node.type === 'CatchClause') {
-				scope = new Scope(scope, true);
+				map.set(node, scope = new Scope(scope, true));
 
 				extract_names(node.param).forEach(name => {
 					scope.declarations.set(name, node.param);
@@ -43,13 +43,12 @@ export function analyze(expression: any) {
 			} else if (node.type === 'Identifier' && is_reference(node, parent)) {
 				add_reference(scope, node.name);
 			}
-
-			map.set(node, scope);
-			stack.push(scope);
 		},
 
 		leave(node: any) {
-			scope = stack.pop();
+			if (map.has(node)) {
+				scope = scope.parent;
+			}
 		}
 	});
 

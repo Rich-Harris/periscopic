@@ -28,11 +28,6 @@ describe('analyze', () => {
 		const a = scope.declarations.get('a');
 		assert.equal(a.type, 'VariableDeclarator');
 		assert.equal(a.id.name, 'a');
-
-		const a_scope = map.get(a);
-		assert.equal(a_scope, scope);
-
-		assert.equal(a_scope.find_owner('a'), scope);
 	});
 });
 
