@@ -16,7 +16,7 @@ console.log(a);
 const { map, globals, scope } = analyze(ast);
 ```
 
-* `map` is a `WeakMap<Node, Scope>`, where the keys are the nodes of your AST
+* `map` is a `WeakMap<Node, Scope>`, where the keys are the nodes of your AST that create a scope
 * `globals` is a `Set<string>` of all the identifiers that are referenced without being declared anywhere in the program (in this case, `b` and `console`)
 * `scope` is the top-level `Scope` belonging to the program
 
