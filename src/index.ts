@@ -6,8 +6,6 @@ export function analyze(expression: any) {
 
 	let scope = new Scope(null, false);
 
-	let stack: Scope[] = [];
-
 	walk(expression, {
 		enter(node: any, parent: any) {
 			if (node.type === 'ImportDeclaration') {
