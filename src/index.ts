@@ -35,9 +35,11 @@ export function analyze(expression: any) {
 			} else if (node.type === 'CatchClause') {
 				map.set(node, scope = new Scope(scope, true));
 
-				extract_names(node.param).forEach(name => {
-					scope.declarations.set(name, node.param);
-				});
+				if (node.param) {
+					extract_names(node.param).forEach(name => {
+						scope.declarations.set(name, node.param);
+					});
+				}
 			} else if (node.type === 'Identifier' && is_reference(node, parent)) {
 				add_reference(scope, node.name);
 			}
