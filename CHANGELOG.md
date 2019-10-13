@@ -1,5 +1,9 @@
 # periscopic changelog
 
+## 1.0.2
+
+* Handle parameter-less catch clauses
+
 ## 1.0.1
 
 * Only attach scope-creating nodes to the scope map
