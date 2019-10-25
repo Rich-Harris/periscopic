@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import * as acorn from 'acorn';
 import { analyze, extract_identifiers, extract_names } from '../src/index';
+import { Node } from 'estree';
 
 const parse = str => acorn.parse(str, {
 	ecmaVersion: 2019,
@@ -13,7 +14,7 @@ describe('analyze', () => {
 			const a = b;
 		`);
 
-		const { map, globals, scope } = analyze(program);
+		const { map, globals, scope } = analyze(program as Node);
 
 		assert.equal(globals.size, 1);
 		assert.ok(globals.has('b'));
@@ -60,5 +61,39 @@ describe('extract_names', () => {
 		const param = program.body[0].params[0];
 
 		assert.deepEqual(extract_names(param), ['a', 'c', 'd']);
+	});
+});
+
+describe('extract_globals', () => {
+	it('extract globals correctly', () => {
+		const program = parse(`
+			const a = b;
+			c;
+		`);
+
+		const { globals } = analyze(program);
+		assert.equal(globals.size, 2);
+		assert.ok(globals.has('b'));
+		assert.ok(globals.has('c'));
+	});
+
+	it('understand block scope', () => {
+		const program = parse(`
+			const a = b + c;
+			let b;
+			{
+				h;
+			}
+			let h;
+			function foo(d) {
+				const g = d + e + f;
+				let e;
+			}
+		`);
+
+		const { globals } = analyze(program);
+		assert.equal(globals.size, 2);
+		assert.ok(globals.has('f'));
+		assert.ok(globals.has('c'));
 	});
 });
