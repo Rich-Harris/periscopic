@@ -1,13 +1,11 @@
 import { walk } from 'estree-walker';
-import { Node, VariableDeclaration, ClassDeclaration, VariableDeclarator, ObjectPattern, Property, RestElement, ArrayPattern, Identifier } from 'estree';
+import { Node, VariableDeclaration, ClassDeclaration, VariableDeclarator, ObjectPattern, Property, RestElement, ArrayPattern, Identifier, AssignmentPattern } from 'estree';
 import is_reference from 'is-reference';
 
 export function analyze(expression: Node) {
 	const map: WeakMap<Node, Scope> = new WeakMap();
 
 	let scope = new Scope(null, false);
-
-	const globals: Set<string> = new Set();
 
 	walk(expression, {
 		enter(node: any, parent: any) {
@@ -43,23 +41,36 @@ export function analyze(expression: Node) {
 						scope.declarations.set(name, node.param);
 					});
 				}
-			} else if (node.type === 'Identifier' && is_reference(node, parent)) {
-				add_reference(scope, node.name);
 			}
 		},
 
 		leave(node: any) {
-			if (/BlockStatement|Program/.test(node.type)) {
-				scope.references.forEach(name => {
-					if (!scope.has(name)) {
-						globals.add(name);
-					}
-				});
-			}
-
 			if (map.has(node)) {
 				scope = scope.parent;
 			}
+		}
+	});
+
+	walk(expression, {
+		enter(node: any, parent: any) {
+			if (map.has(node)) scope = map.get(node);
+
+			if (node.type === 'Identifier' && is_reference(node, parent)) {
+				add_reference(scope, node.name);
+			}
+		},
+		leave(node: any) {
+			if (map.has(node)) {
+				scope = scope.parent;
+			}
+		}
+	});
+
+	const globals: Set<string> = new Set();
+
+	scope.references.forEach(name => {
+		if (!scope.declarations.has(name)) {
+			globals.add(name);
 		}
 	});
 
@@ -68,6 +79,7 @@ export function analyze(expression: Node) {
 
 function add_reference(scope: Scope, name: string) {
 	scope.references.add(name);
+	if (scope.parent && !scope.declarations.has(name)) add_reference(scope.parent, name);
 }
 
 export class Scope {
@@ -90,7 +102,7 @@ export class Scope {
 			} else if (node.type === 'VariableDeclaration') {
 				node.declarations.forEach((declarator: VariableDeclarator) => {
 					extract_names(declarator.id).forEach(name => {
-						this.declarations.set(name, node);
+						this.declarations.set(name, declarator);
 						if (declarator.init) this.initialised_declarations.add(name);
 					});
 				});
