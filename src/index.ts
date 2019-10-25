@@ -7,6 +7,8 @@ export function analyze(expression: Node) {
 
 	let scope = new Scope(null, false);
 
+	const globals: Set<string> = new Set();
+
 	walk(expression, {
 		enter(node: any, parent: any) {
 			if (node.type === 'ImportDeclaration') {
@@ -47,17 +49,17 @@ export function analyze(expression: Node) {
 		},
 
 		leave(node: any) {
+			if (/BlockStatement|Program/.test(node.type)) {
+				scope.references.forEach(name => {
+					if (!scope.has(name)) {
+						globals.add(name);
+					}
+				});
+			}
+
 			if (map.has(node)) {
 				scope = scope.parent;
 			}
-		}
-	});
-
-	const globals: Set<string> = new Set();
-
-	scope.references.forEach(name => {
-		if (!scope.declarations.has(name)) {
-			globals.add(name);
 		}
 	});
 
@@ -66,7 +68,6 @@ export function analyze(expression: Node) {
 
 function add_reference(scope: Scope, name: string) {
 	scope.references.add(name);
-	if (scope.parent) add_reference(scope.parent, name);
 }
 
 export class Scope {

@@ -62,3 +62,33 @@ describe('extract_names', () => {
 		assert.deepEqual(extract_names(param), ['a', 'c', 'd']);
 	});
 });
+
+describe('extract_globals', () => {
+	it('extract globals correctly', () => {
+		const program = parse(`
+			const a = b;
+			c;
+		`);
+
+		const { globals } = analyze(program);
+		assert.equal(globals.size, 2);
+		assert.ok(globals.has('b'));
+		assert.ok(globals.has('c'));
+	});
+
+	it('understand block scope', () => {
+		const program = parse(`
+			const a = b + c;
+			let b;
+			function foo(d) {
+				const g = d + e + f;
+				let e;
+			}
+		`);
+
+		const { globals } = analyze(program);
+		assert.equal(globals.size, 2);
+		assert.ok(globals.has('f'));
+		assert.ok(globals.has('c'));
+	});
+});
