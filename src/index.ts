@@ -1,8 +1,9 @@
 import { walk } from 'estree-walker';
+import { Node, VariableDeclaration, ClassDeclaration, VariableDeclarator, ObjectPattern, Property, RestElement, ArrayPattern, Identifier } from 'estree';
 import is_reference from 'is-reference';
 
-export function analyze(expression: any) {
-	const map: WeakMap<any, Scope> = new WeakMap();
+export function analyze(expression: Node) {
+	const map: WeakMap<Node, Scope> = new WeakMap();
 
 	let scope = new Scope(null, false);
 
@@ -31,7 +32,7 @@ export function analyze(expression: any) {
 			} else if (node.type === 'BlockStatement') {
 				map.set(node, scope = new Scope(scope, true));
 			} else if (/(Class|Variable)Declaration/.test(node.type)) {
-				add_declaration(scope, node);
+				scope.add_declaration(node);
 			} else if (node.type === 'CatchClause') {
 				map.set(node, scope = new Scope(scope, true));
 
@@ -63,20 +64,6 @@ export function analyze(expression: any) {
 	return { map, scope, globals };
 }
 
-function add_declaration(scope: Scope, node: any) {
-	if (node.kind === 'var' && scope.block && scope.parent) {
-		add_declaration(scope.parent, node);
-	} else if (node.type === 'VariableDeclaration') {
-		node.declarations.forEach((declarator: any) => {
-			extract_names(declarator.id).forEach(name => {
-				scope.declarations.set(name, declarator);
-			});
-		});
-	} else {
-		scope.declarations.set(node.id.name, node);
-	}
-}
-
 function add_reference(scope: Scope, name: string) {
 	scope.references.add(name);
 	if (scope.parent) add_reference(scope.parent, name);
@@ -85,12 +72,31 @@ function add_reference(scope: Scope, name: string) {
 export class Scope {
 	parent: Scope;
 	block: boolean;
-	declarations: Map<string, any> = new Map();
+	declarations: Map<string, Node> = new Map();
+	initialised_declarations: Set<string> = new Set();
 	references: Set<string> = new Set();
 
 	constructor(parent: Scope, block: boolean) {
 		this.parent = parent;
 		this.block = block;
+	}
+
+
+	add_declaration(node: VariableDeclaration | ClassDeclaration) {
+		if (node.type === 'VariableDeclaration') {
+			if (node.kind === 'var' && this.block && this.parent) {
+				this.parent.add_declaration(node);
+			} else if (node.type === 'VariableDeclaration') {
+				node.declarations.forEach((declarator: VariableDeclarator) => {
+					extract_names(declarator.id).forEach(name => {
+						this.declarations.set(name, node);
+						if (declarator.init) this.initialised_declarations.add(name);
+					});
+				});
+			}
+		} else {
+			this.declarations.set(node.id.name, node);
+		}
 	}
 
 	find_owner(name: string): Scope {
@@ -105,29 +111,29 @@ export class Scope {
 	}
 }
 
-export function extract_names(param: any) {
+export function extract_names(param: Node): string[] {
 	return extract_identifiers(param).map(node => node.name);
 }
 
-export function extract_identifiers(param: any) {
+export function extract_identifiers(param: Node): Identifier[] {
 	const nodes: any[] = [];
 	extractors[param.type] && extractors[param.type](nodes, param);
 	return nodes;
 }
 
-const extractors: Record<string, (nodes: any[], param: any) => void> = {
-	Identifier(nodes: any[], param: any) {
+const extractors: Record<string, (nodes: Node[], param: Node) => void> = {
+	Identifier(nodes: Node[], param: Node) {
 		nodes.push(param);
 	},
 
-	MemberExpression(nodes: any[], param: any) {
+	MemberExpression(nodes: Node[], param: Node) {
 		let object = param;
 		while (object.type === 'MemberExpression') object = object.object;
 		nodes.push(object);
 	},
 
-	ObjectPattern(nodes: any[], param: any) {
-		param.properties.forEach((prop: any) => {
+	ObjectPattern(nodes: Node[], param: ObjectPattern) {
+		param.properties.forEach((prop: Property | RestElement) => {
 			if (prop.type === 'RestElement') {
 				nodes.push(prop.argument);
 			} else {
@@ -136,17 +142,17 @@ const extractors: Record<string, (nodes: any[], param: any) => void> = {
 		});
 	},
 
-	ArrayPattern(nodes: any[], param: any) {
-		param.elements.forEach((element: any) => {
+	ArrayPattern(nodes: Node[], param: ArrayPattern) {
+		param.elements.forEach((element: Node) => {
 			if (element) extractors[element.type](nodes, element);
 		});
 	},
 
-	RestElement(nodes: any[], param: any) {
+	RestElement(nodes: Node[], param: RestElement) {
 		extractors[param.argument.type](nodes, param.argument);
 	},
 
-	AssignmentPattern(nodes: any[], param: any) {
+	AssignmentPattern(nodes: Node[], param: AssignmentPattern) {
 		extractors[param.left.type](nodes, param.left);
 	}
 };
