@@ -27,8 +27,31 @@ describe('analyze', () => {
 		assert.ok(scope.references.has('b'));
 
 		const a = scope.declarations.get('a');
-		assert.equal(a.type, 'VariableDeclarator');
-		assert.equal(a.id.name, 'a');
+		assert.deepEqual(a, {
+			type: 'VariableDeclaration',
+      start: 4,
+			end: 16,
+      kind: 'const',
+			declarations: [
+				{
+					type: 'VariableDeclarator',
+					start: 10,
+					end: 15,
+					id: {
+						type: 'Identifier',
+						name: 'a',
+						start: 10,
+						end: 11
+					},
+					init: {
+						type: 'Identifier',
+						name: 'b',
+						start: 14,
+						end: 15
+					}
+				}
+			]
+		});
 	});
 });
 

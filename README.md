@@ -17,7 +17,7 @@ const { map, globals, scope } = analyze(ast);
 ```
 
 * `map` is a `WeakMap<Node, Scope>`, where the keys are the nodes of your AST that create a scope
-* `globals` is a `Set<string>` of all the identifiers that are referenced without being declared anywhere in the program (in this case, `b` and `console`)
+* `globals` is a `Map<string, Node>` of all the identifiers that are referenced without being declared anywhere in the program (in this case, `b` and `console`)
 * `scope` is the top-level `Scope` belonging to the program
 
 
@@ -27,7 +27,8 @@ Each `Scope` instance has the following properties:
 
 * `scope.block` — true if the scope is created by a block statement (i.e. `let`, `const` and `class` are contained to it), false otherwise
 * `scope.parent` — the parent scope object
-* `scope.declarations` — a `Map<string, Node>` of all the variables declared in this scope
+* `scope.declarations` — a `Map<string, Node>` of all the variables declared in this scope, the node value referes to the declaration statement
+* `scope.initialised_declarations` — a `Set<string>` of all the variables declared and initialised in this scope
 * `scope.references` — a `Set<string>` of all the names referenced in this scope (or child scopes)
 
 It also has two methods:
