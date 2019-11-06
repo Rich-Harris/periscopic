@@ -29,9 +29,9 @@ describe('analyze', () => {
 		const a = scope.declarations.get('a');
 		assert.deepEqual(a, {
 			type: 'VariableDeclaration',
-      start: 4,
+			start: 4,
 			end: 16,
-      kind: 'const',
+			kind: 'const',
 			declarations: [
 				{
 					type: 'VariableDeclarator',
