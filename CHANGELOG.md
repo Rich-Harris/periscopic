@@ -1,5 +1,11 @@
 # periscopic changelog
 
+## 2.0.0
+
+* Match API used by Svelte's internal helpers ([#4](https://github.com/Rich-Harris/periscopic/pull/4))
+	* Change `globals` to a `Map<string, Node>`
+	* Change value of `scope.declarations` to the variable declaration, not declarator
+
 ## 1.1.0
 
 * Add `add_declaration` method and `initialised_declarations` set to `Scope` ([#2](https://github.com/Rich-Harris/periscopic/pull/2))
