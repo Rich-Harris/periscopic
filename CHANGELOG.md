@@ -1,5 +1,9 @@
 # periscopic changelog
 
+## 2.0.1
+
+* Fix reference extraction
+
 ## 2.0.0
 
 * Match API used by Svelte's internal helpers ([#4](https://github.com/Rich-Harris/periscopic/pull/4))

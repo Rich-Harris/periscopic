@@ -53,6 +53,19 @@ describe('analyze', () => {
 			]
 		});
 	});
+
+	it('extracts all references', () => {
+		const program = parse(`
+			function foo() {
+				const bar = 1;
+				baz();
+			}
+		`);
+
+		const { scope } = analyze(program as Node);
+
+		assert.deepEqual(scope.references, new Set(['foo', 'bar', 'baz']))
+	});
 });
 
 describe('extract_identifiers', () => {

@@ -52,18 +52,16 @@ export function analyze(expression: Node) {
 	});
 
 	const globals: Map<string, Node> = new Map();
-	const root_scope = scope;
 
 	walk(expression, {
 		enter(node: any, parent: any) {
 			if (map.has(node)) scope = map.get(node);
 
 			if (node.type === 'Identifier' && is_reference(node, parent)) {
-				if (add_reference(scope, node.name) === root_scope) {
-					if (!root_scope.declarations.has(node.name)) {
-						globals.set(node.name, node);
-					}
-				}
+				const owner = scope.find_owner(node.name);
+				if (!owner) globals.set(node.name, node);
+
+				add_reference(scope, node.name);
 			}
 		},
 		leave(node: any) {
@@ -76,10 +74,9 @@ export function analyze(expression: Node) {
 	return { map, scope, globals };
 }
 
-function add_reference(scope: Scope, name: string): Scope {
+function add_reference(scope: Scope, name: string) {
 	scope.references.add(name);
-	if (scope.parent && !scope.declarations.has(name)) return add_reference(scope.parent, name);
-	return scope;
+	if (scope.parent) add_reference(scope.parent, name);
 }
 
 export class Scope {
