@@ -11,10 +11,8 @@
 		"declarationDir": "types",
 		"emitDeclarationOnly": true,
 
-		"noImplicitAny": true,
+		"strict": true,
 		"diagnostics": true,
-		"noImplicitThis": true,
-		"noEmitOnError": true,
 
 		"newLine": "lf"
 	}
