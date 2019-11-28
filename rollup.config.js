@@ -7,7 +7,7 @@ export default {
 		{ file: pkg.main, format: 'cjs', name: 'periscopic' },
 		{ file: pkg.module, format: 'esm' }
 	],
-	external: ['estree-walker', 'is-reference'],
+	external: Object.keys(pkg.dependencies),
 	plugins: [
 		sucrase({
 			transforms: ['typescript']
