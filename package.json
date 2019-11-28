@@ -15,7 +15,6 @@
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.9.4",
     "acorn": "^7.0.0",
-    "estree-walker": "^0.8.1",
     "mocha": "^5.2.0",
     "rollup": "^0.65.2",
     "rollup-plugin-sucrase": "^2.1.0",
@@ -33,6 +32,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "estree-walker": "^1.0.0",
     "is-reference": "^1.1.4"
   }
 }
