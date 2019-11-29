@@ -1,5 +1,9 @@
 # periscopic changelog
 
+## 2.0.2
+
+* Performance improvements ([#5](https://github.com/Rich-Harris/periscopic/pull/5))
+
 ## 2.0.1
 
 * Fix reference extraction
