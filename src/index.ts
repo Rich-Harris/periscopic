@@ -49,6 +49,7 @@ export function analyze(expression: Node) {
 					});
 					break;
 
+				case 'ForStatement':
 				case 'ForInStatement':
 				case 'ForOfStatement':
 					map.set(node, current_scope = new Scope(current_scope, true));

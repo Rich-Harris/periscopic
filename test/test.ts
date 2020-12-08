@@ -2,6 +2,7 @@ import * as assert from 'assert';
 import * as acorn from 'acorn';
 import { analyze, extract_identifiers, extract_names } from '../src/index';
 import { Node } from 'estree';
+import { walk } from 'estree-walker';
 
 const parse = str => acorn.parse(str, {
 	ecmaVersion: 2019,
@@ -65,6 +66,31 @@ describe('analyze', () => {
 		const { scope } = analyze(program as Node);
 
 		assert.deepEqual(scope.references, new Set(['foo', 'bar', 'baz']))
+	});
+
+	it('tracks all scopes', () => {
+		const program = parse(`
+			function foo() {}
+			const bar = function bar() {};
+			const baz = () => {};
+			for (let i = 0; i < 10; ++i) {}
+			for (let k in obj) {}
+			for (let v of obj) {}
+			try {} catch (e) {}
+		`) as Node;
+
+		const { map } = analyze(program);
+		const scopes: Node[] = [];
+
+		walk(program, {
+			enter(node) {
+				if (map.has(node)) {
+					scopes.push(node);
+				}
+			}
+		});
+
+		assert.equal(scopes.length, 15);
 	});
 });
 
