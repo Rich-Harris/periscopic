@@ -1,5 +1,9 @@
 # periscopic changelog
 
+## 2.0.3
+
+* Convert to JavaScript
+
 ## 2.0.2
 
 * Performance improvements ([#5](https://github.com/Rich-Harris/periscopic/pull/5))
