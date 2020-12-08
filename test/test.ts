@@ -1,4 +1,5 @@
-import * as assert from 'assert';
+import * as uvu from 'uvu';
+import * as assert from 'uvu/assert';
 import * as acorn from 'acorn';
 import { analyze, extract_identifiers, extract_names } from '../src/index';
 import { Node } from 'estree';
@@ -9,7 +10,17 @@ const parse = str => acorn.parse(str, {
 	sourceType: 'module'
 });
 
-describe('analyze', () => {
+function describe(name, fn) {
+	const suite = uvu.suite(name);
+	fn(suite);
+	suite.run();
+}
+
+function pojo(obj) {
+	return JSON.parse(JSON.stringify(obj));
+}
+
+describe('analyze', it => {
 	it('analyzes a program', () => {
 		const program = parse(`
 			const a = b;
@@ -28,7 +39,7 @@ describe('analyze', () => {
 		assert.ok(scope.references.has('b'));
 
 		const a = scope.declarations.get('a');
-		assert.deepEqual(a, {
+		assert.equal(pojo(a), {
 			type: 'VariableDeclaration',
 			start: 4,
 			end: 16,
@@ -65,7 +76,7 @@ describe('analyze', () => {
 
 		const { scope } = analyze(program as Node);
 
-		assert.deepEqual(scope.references, new Set(['foo', 'bar', 'baz']))
+		assert.equal(scope.references, new Set(['foo', 'bar', 'baz']))
 	});
 
 	it('tracks all scopes', () => {
@@ -94,7 +105,7 @@ describe('analyze', () => {
 	});
 });
 
-describe('extract_identifiers', () => {
+describe('extract_identifiers', it => {
 	it('extracts identifier nodes', () => {
 		const program: any = parse(`
 			function foo({ a, b: [c, d] = e }) {
@@ -104,7 +115,7 @@ describe('extract_identifiers', () => {
 
 		const param = program.body[0].params[0];
 
-		assert.deepEqual(extract_identifiers(param), [
+		assert.equal(pojo(extract_identifiers(param)), [
 			{ type: 'Identifier', name: 'a', start: 19, end: 20 },
 			{ type: 'Identifier', name: 'c', start: 26, end: 27 },
 			{ type: 'Identifier', name: 'd', start: 29, end: 30 }
@@ -112,7 +123,7 @@ describe('extract_identifiers', () => {
 	});
 });
 
-describe('extract_names', () => {
+describe('extract_names', it => {
 	it('extracts identifier nodes', () => {
 		const program: any = parse(`
 			function foo({ a, b: [c, d] = e }) {
@@ -122,11 +133,11 @@ describe('extract_names', () => {
 
 		const param = program.body[0].params[0];
 
-		assert.deepEqual(extract_names(param), ['a', 'c', 'd']);
+		assert.equal(extract_names(param), ['a', 'c', 'd']);
 	});
 });
 
-describe('extract_globals', () => {
+describe('extract_globals', it => {
 	it('extract globals correctly', () => {
 		const program = parse(`
 			const a = b;
