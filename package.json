@@ -5,6 +5,10 @@
   "repository": "Rich-Harris/periscopic",
   "main": "dist/periscopic.js",
   "module": "dist/periscopic.mjs",
+  "exports": {
+    "import": "./dist/periscopic.mjs",
+    "require": "./dist/periscopic.js"
+  },
   "types": "types/index.d.ts",
   "files": [
     "dist",
@@ -14,20 +18,18 @@
     "@types/estree": "0.0.39",
     "acorn": "^7.0.0",
     "rollup": "^0.65.2",
-    "rollup-plugin-sucrase": "^2.1.0",
-    "sucrase": "^3.9.5",
-    "typescript": "^3.6.2",
+    "typescript": "^4.1.2",
     "uvu": "^0.5.1"
   },
   "scripts": {
     "build": "tsc && rollup -c",
     "dev": "rollup -cw",
-    "test": "uvu test -r sucrase/register",
+    "test": "uvu test",
     "prepublishOnly": "npm test && npm run build"
   },
   "license": "MIT",
   "dependencies": {
-    "estree-walker": "^1.0.0",
+    "estree-walker": "^2.0.2",
     "is-reference": "^1.1.4"
   }
 }

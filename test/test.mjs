@@ -1,8 +1,7 @@
 import * as uvu from 'uvu';
 import * as assert from 'uvu/assert';
-import * as acorn from 'acorn';
-import { analyze, extract_identifiers, extract_names } from '../src/index';
-import { Node } from 'estree';
+import acorn from 'acorn';
+import { analyze, extract_identifiers, extract_names } from '../src/index.js';
 import { walk } from 'estree-walker';
 
 const parse = str => acorn.parse(str, {
@@ -26,7 +25,7 @@ describe('analyze', it => {
 			const a = b;
 		`);
 
-		const { map, globals, scope } = analyze(program as Node);
+		const { map, globals, scope } = analyze(program);
 
 		assert.equal(globals.size, 1);
 		assert.ok(globals.has('b'));
@@ -74,7 +73,7 @@ describe('analyze', it => {
 			}
 		`);
 
-		const { scope } = analyze(program as Node);
+		const { scope } = analyze(program);
 
 		assert.equal(scope.references, new Set(['foo', 'bar', 'baz']))
 	});
@@ -88,10 +87,10 @@ describe('analyze', it => {
 			for (let k in obj) {}
 			for (let v of obj) {}
 			try {} catch (e) {}
-		`) as Node;
+		`);
 
 		const { map } = analyze(program);
-		const scopes: Node[] = [];
+		const scopes = [];
 
 		walk(program, {
 			enter(node) {
@@ -107,7 +106,7 @@ describe('analyze', it => {
 
 describe('extract_identifiers', it => {
 	it('extracts identifier nodes', () => {
-		const program: any = parse(`
+		const program = parse(`
 			function foo({ a, b: [c, d] = e }) {
 				return a + c + d;
 			}
@@ -125,7 +124,7 @@ describe('extract_identifiers', it => {
 
 describe('extract_names', it => {
 	it('extracts identifier nodes', () => {
-		const program: any = parse(`
+		const program = parse(`
 			function foo({ a, b: [c, d] = e }) {
 				return a + c + d;
 			}

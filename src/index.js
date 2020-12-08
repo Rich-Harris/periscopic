@@ -1,17 +1,39 @@
+// @ts-check
 import { walk } from 'estree-walker';
-import { Node, VariableDeclaration, ClassDeclaration, VariableDeclarator, Property, RestElement, Identifier } from 'estree';
 import is_reference from 'is-reference';
 
-export function analyze(expression: Node) {
-	const map: WeakMap<Node, Scope> = new WeakMap();
-	const globals: Map<string, Node> = new Map();
+/** @typedef { import('estree').Node} Node */
+/** @typedef { import('estree').VariableDeclaration} VariableDeclaration */
+/** @typedef { import('estree').ClassDeclaration} ClassDeclaration */
+/** @typedef { import('estree').VariableDeclarator} VariableDeclarator */
+/** @typedef { import('estree').Property} Property */
+/** @typedef { import('estree').RestElement} RestElement */
+/** @typedef { import('estree').Identifier} Identifier */
+
+/**
+ *
+ * @param {Node} expression
+ */
+export function analyze(expression) {
+	/** @type {WeakMap<Node, Scope>} */
+	const map = new WeakMap();
+
+	/** @type {Map<string, Node>} */
+	const globals = new Map();
+
 	const scope = new Scope(null, false);
 
-	const references = [] as [Scope, Identifier][];
+	/** @type {[Scope, Identifier][]} */
+	const references = [];
 	let current_scope = scope;
 
 	walk(expression, {
-		enter(node: Node, parent: Node) {
+		/**
+		 *
+		 * @param {Node} node
+		 * @param {Node} parent
+		 */
+		enter(node, parent) {
 			switch (node.type) {
 				case 'Identifier':
 					if (is_reference(node, parent)) {
@@ -20,7 +42,7 @@ export function analyze(expression: Node) {
 					break;
 
 				case 'ImportDeclaration':
-					node.specifiers.forEach((specifier: any) => {
+					node.specifiers.forEach((specifier) => {
 						current_scope.declarations.set(specifier.local.name, specifier);
 					});
 					break;
@@ -76,9 +98,13 @@ export function analyze(expression: Node) {
 			}
 		},
 
-		leave(node: Node) {
+		/**
+		 *
+		 * @param {Node} node
+		 */
+		leave(node) {
 			if (map.has(node)) {
-				current_scope = current_scope.parent as Scope;
+				current_scope = current_scope.parent;
 			}
 		}
 	});
@@ -98,82 +124,138 @@ export function analyze(expression: Node) {
 	return { map, scope, globals };
 }
 
-function add_reference(scope: Scope, name: string) {
+/**
+ *
+ * @param {Scope} scope
+ * @param {string} name
+ */
+function add_reference(scope, name) {
 	scope.references.add(name);
 	if (scope.parent) add_reference(scope.parent, name);
 }
 
 export class Scope {
-	parent: Scope | null;
-	block: boolean;
-	declarations: Map<string, Node> = new Map();
-	initialised_declarations: Set<string> = new Set();
-	references: Set<string> = new Set();
-
-	constructor(parent: Scope | null, block: boolean) {
+	constructor(parent, block) {
+		/** @type {Scope | null} */
 		this.parent = parent;
+
+		/** @type {boolean} */
 		this.block = block;
+
+		/** @type {Map<string, Node>} */
+		this.declarations = new Map();
+
+		/** @type {Set<string>} */
+		this.initialised_declarations = new Set();
+
+		/** @type {Set<string>} */
+		this.references = new Set();
 	}
 
-	add_declaration(node: VariableDeclaration | ClassDeclaration) {
+	/**
+	 *
+	 * @param {VariableDeclaration | ClassDeclaration} node
+	 */
+	add_declaration(node) {
 		if (node.type === 'VariableDeclaration') {
 			if (node.kind === 'var' && this.block && this.parent) {
 				this.parent.add_declaration(node);
 			} else {
-				node.declarations.forEach((declarator: VariableDeclarator) => {
+				/**
+				 *
+				 * @param {VariableDeclarator} declarator
+				 */
+				const handle_declarator = (declarator) => {
 					extract_names(declarator.id).forEach(name => {
 						this.declarations.set(name, node);
 						if (declarator.init) this.initialised_declarations.add(name);
-					});
-				});
+					});;
+				}
+
+				node.declarations.forEach(handle_declarator);
 			}
 		} else if (node.id) {
 			this.declarations.set(node.id.name, node);
 		}
 	}
 
-	find_owner(name: string): Scope | null {
+	/**
+	 *
+	 * @param {string} name
+	 * @returns {Scope | null}
+	 */
+	find_owner(name) {
 		if (this.declarations.has(name)) return this;
 		return this.parent && this.parent.find_owner(name);
 	}
 
-	has(name: string): boolean {
+	/**
+	 *
+	 * @param {string} name
+	 * @returns {boolean}
+	 */
+	has(name) {
 		return (
 			this.declarations.has(name) || (!!this.parent && this.parent.has(name))
 		);
 	}
 }
 
-export function extract_names(param: Node): string[] {
+/**
+ *
+ * @param {Node} param
+ * @returns {string[]}
+ */
+export function extract_names(param) {
 	return extract_identifiers(param).map(node => node.name);
 }
 
-export function extract_identifiers(param: Node, nodes = [] as Identifier[]): Identifier[] {
+/**
+ *
+ * @param {Node} param
+ * @param {Identifier[]} nodes
+ * @returns {Identifier[]}
+ */
+export function extract_identifiers(param, nodes = []) {
 	switch (param.type) {
 		case 'Identifier':
 			nodes.push(param);
 			break;
 
 		case 'MemberExpression':
-			let object: any = param;
-			while (object.type === 'MemberExpression') object = object.object;
-			nodes.push(object);
+			let object = param;
+			while (object.type === 'MemberExpression') {
+				object = /** @type {any} */ (object.object);
+			}
+			nodes.push(/** @type {any} */ (object));
 			break;
 
 		case 'ObjectPattern':
-			param.properties.forEach((prop: Property | RestElement) => {
+			/**
+			 *
+			 * @param {Property | RestElement} prop
+			 */
+			const handle_prop = (prop) => {
 				if (prop.type === 'RestElement') {
 					extract_identifiers(prop.argument, nodes);
 				} else {
 					extract_identifiers(prop.value, nodes);
 				}
-			});
+			};
+
+			param.properties.forEach(handle_prop);
 			break;
 
 		case 'ArrayPattern':
-			param.elements.forEach((element: Node) => {
+			/**
+			 *
+			 * @param {Node} element
+			 */
+			const handle_element = (element) => {
 				if (element) extract_identifiers(element, nodes);
-			});
+			};
+
+			param.elements.forEach(handle_element);
 			break;
 
 		case 'RestElement':
