@@ -1,8 +1,10 @@
 {
 	"compilerOptions": {
 		"allowJs": true,
+		"target": "es2017",
 		"declaration": true,
 		"emitDeclarationOnly": true,
+		"moduleResolution": "node",
 		"outDir": "types"
 	},
 

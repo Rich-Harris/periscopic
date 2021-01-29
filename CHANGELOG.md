@@ -1,5 +1,9 @@
 # periscopic changelog
 
+## 3.0.0
+
+* Remove CommonJS vestiges
+
 ## 2.0.3
 
 * Convert to JavaScript

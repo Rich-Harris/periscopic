@@ -1,31 +1,27 @@
 {
   "name": "periscopic",
   "description": "periscopic",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "repository": "Rich-Harris/periscopic",
-  "main": "dist/periscopic.js",
-  "module": "dist/periscopic.mjs",
+  "module": "src/index.js",
+  "type": "module",
   "exports": {
-    "import": "./dist/periscopic.mjs",
-    "require": "./dist/periscopic.js"
+    "import": "./src/index.js"
   },
   "types": "types/index.d.ts",
   "files": [
-    "dist",
+    "src",
     "types"
   ],
   "devDependencies": {
     "@types/estree": "0.0.39",
     "acorn": "^7.0.0",
-    "rollup": "^0.65.2",
     "typescript": "^4.1.2",
     "uvu": "^0.5.1"
   },
   "scripts": {
-    "build": "tsc && rollup -c",
-    "dev": "rollup -cw",
     "test": "uvu test",
-    "prepublishOnly": "npm test && npm run build"
+    "prepublishOnly": "npm test && tsc"
   },
   "license": "MIT",
   "dependencies": {
