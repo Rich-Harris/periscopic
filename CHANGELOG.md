@@ -1,5 +1,9 @@
 # periscopic changelog
 
+## 3.0.2
+
+* Tidy up types
+
 ## 3.0.1
 
 * Update `estree-walker` to 3.0.0 to solve transitive dependency issues ([#11](https://github.com/Rich-Harris/periscopic/pull/11))

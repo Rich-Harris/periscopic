@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"allowJs": true,
+		"checkJs": true,
 		"target": "es2017",
 		"declaration": true,
 		"emitDeclarationOnly": true,

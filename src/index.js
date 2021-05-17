@@ -1,20 +1,10 @@
-// @ts-check
 import { walk } from 'estree-walker';
 import is_reference from 'is-reference';
 
-/** @typedef { import('estree').Node} Node */
-/** @typedef { import('estree').VariableDeclaration} VariableDeclaration */
-/** @typedef { import('estree').ClassDeclaration} ClassDeclaration */
-/** @typedef { import('estree').VariableDeclarator} VariableDeclarator */
-/** @typedef { import('estree').Property} Property */
-/** @typedef { import('estree').RestElement} RestElement */
-/** @typedef { import('estree').Identifier} Identifier */
-
-/**
- *
- * @param {Node} expression
- */
+/** @param {import('estree').Node} expression */
 export function analyze(expression) {
+	/** @typedef {import('estree').Node} Node */
+
 	/** @type {WeakMap<Node, Scope>} */
 	const map = new WeakMap();
 
@@ -23,13 +13,12 @@ export function analyze(expression) {
 
 	const scope = new Scope(null, false);
 
-	/** @type {[Scope, Identifier][]} */
+	/** @type {[Scope, import('estree').Identifier][]} */
 	const references = [];
 	let current_scope = scope;
 
 	walk(expression, {
 		/**
-		 *
 		 * @param {Node} node
 		 * @param {Node} parent
 		 */
@@ -98,10 +87,7 @@ export function analyze(expression) {
 			}
 		},
 
-		/**
-		 *
-		 * @param {Node} node
-		 */
+		/** @param {Node} node */
 		leave(node) {
 			if (map.has(node)) {
 				current_scope = current_scope.parent;
@@ -142,7 +128,7 @@ export class Scope {
 		/** @type {boolean} */
 		this.block = block;
 
-		/** @type {Map<string, Node>} */
+		/** @type {Map<string, import('estree').Node>} */
 		this.declarations = new Map();
 
 		/** @type {Set<string>} */
@@ -152,19 +138,13 @@ export class Scope {
 		this.references = new Set();
 	}
 
-	/**
-	 *
-	 * @param {VariableDeclaration | ClassDeclaration} node
-	 */
+	/** @param {import('estree').VariableDeclaration | import('estree').ClassDeclaration} node */
 	add_declaration(node) {
 		if (node.type === 'VariableDeclaration') {
 			if (node.kind === 'var' && this.block && this.parent) {
 				this.parent.add_declaration(node);
 			} else {
-				/**
-				 *
-				 * @param {VariableDeclarator} declarator
-				 */
+				/** @param {import('estree').VariableDeclarator} declarator */
 				const handle_declarator = (declarator) => {
 					extract_names(declarator.id).forEach(name => {
 						this.declarations.set(name, node);
@@ -180,7 +160,6 @@ export class Scope {
 	}
 
 	/**
-	 *
 	 * @param {string} name
 	 * @returns {Scope | null}
 	 */
@@ -190,7 +169,6 @@ export class Scope {
 	}
 
 	/**
-	 *
 	 * @param {string} name
 	 * @returns {boolean}
 	 */
@@ -202,8 +180,7 @@ export class Scope {
 }
 
 /**
- *
- * @param {Node} param
+ * @param {import('estree').Node} param
  * @returns {string[]}
  */
 export function extract_names(param) {
@@ -211,10 +188,9 @@ export function extract_names(param) {
 }
 
 /**
- *
- * @param {Node} param
- * @param {Identifier[]} nodes
- * @returns {Identifier[]}
+ * @param {import('estree').Node} param
+ * @param {import('estree').Identifier[]} nodes
+ * @returns {import('estree').Identifier[]}
  */
 export function extract_identifiers(param, nodes = []) {
 	switch (param.type) {
@@ -231,10 +207,7 @@ export function extract_identifiers(param, nodes = []) {
 			break;
 
 		case 'ObjectPattern':
-			/**
-			 *
-			 * @param {Property | RestElement} prop
-			 */
+			/** @param {import('estree').Property | import('estree').RestElement} prop */
 			const handle_prop = (prop) => {
 				if (prop.type === 'RestElement') {
 					extract_identifiers(prop.argument, nodes);
@@ -247,10 +220,7 @@ export function extract_identifiers(param, nodes = []) {
 			break;
 
 		case 'ArrayPattern':
-			/**
-			 *
-			 * @param {Node} element
-			 */
+			/** @param {import('estree').Node} element */
 			const handle_element = (element) => {
 				if (element) extract_identifiers(element, nodes);
 			};
