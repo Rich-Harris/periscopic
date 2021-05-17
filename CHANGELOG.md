@@ -1,5 +1,9 @@
 # periscopic changelog
 
+## 3.0.1
+
+* Update `estree-walker` to 3.0.0 to solve transitive dependency issues ([#11](https://github.com/Rich-Harris/periscopic/pull/11))
+
 ## 3.0.0
 
 * Remove CommonJS vestiges
