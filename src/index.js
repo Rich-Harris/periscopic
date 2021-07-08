@@ -100,10 +100,9 @@ export function analyze(expression) {
 
 		if (!scope.references.has(reference.name)) {
 			add_reference(scope, reference.name);
-
-			if (!scope.find_owner(reference.name)) {
-				globals.set(reference.name, reference);
-			}
+		}
+		if (!scope.find_owner(reference.name)) {
+			globals.set(reference.name, reference);
 		}
 	}
 

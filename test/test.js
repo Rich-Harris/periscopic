@@ -141,12 +141,17 @@ describe('extract_globals', it => {
 		const program = parse(`
 			const a = b;
 			c;
+			d = 1;
+			function foo(d) {
+				return d;
+			}
 		`);
 
 		const { globals } = analyze(program);
-		assert.equal(globals.size, 2);
+		assert.equal(globals.size, 3);
 		assert.ok(globals.has('b'));
 		assert.ok(globals.has('c'));
+		assert.ok(globals.has('d'));
 	});
 
 	it('understand block scope', () => {
