@@ -20,7 +20,7 @@ export function analyze(expression) {
 	walk(expression, {
 		/**
 		 * @param {Node} node
-		 * @param {Node} parent
+		 * @param {any} parent
 		 */
 		enter(node, parent) {
 			switch (node.type) {
