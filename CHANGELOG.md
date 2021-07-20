@@ -3,8 +3,7 @@
 ## 3.0.4
 
 - Update `is-reference` ([#15](https://github.com/Rich-Harris/periscopic/pull/15))
-
-* Work around broken `eslintplugin-import` ([#14](https://github.com/Rich-Harris/periscopic/pull/14))
+- Work around broken `eslintplugin-import` ([#14](https://github.com/Rich-Harris/periscopic/pull/14))
 
 ## 3.0.3
 
