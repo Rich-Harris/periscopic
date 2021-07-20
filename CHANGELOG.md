@@ -1,5 +1,9 @@
 # periscopic changelog
 
+## 3.0.3
+
+* Fix global detection ([#12](https://github.com/Rich-Harris/periscopic/pull/12))
+
 ## 3.0.2
 
 * Tidy up types
