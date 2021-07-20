@@ -3,6 +3,7 @@
   "description": "periscopic",
   "version": "3.0.3",
   "repository": "Rich-Harris/periscopic",
+  "main": "src/index.js",
   "module": "src/index.js",
   "type": "module",
   "exports": {
