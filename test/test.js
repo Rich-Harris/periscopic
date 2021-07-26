@@ -173,4 +173,15 @@ describe('extract_globals', it => {
 		assert.ok(globals.has('f'));
 		assert.ok(globals.has('c'));
 	});
+
+	it('should not report export from as globals', () => {
+		const program = parse(`
+			export { a } from './a';
+			export { b, c } from './b';
+			export { d as e } from './c';
+		`);
+
+		const { globals } = analyze(program);
+		assert.equal(globals.size, 0);
+	});
 });
