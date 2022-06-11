@@ -6,9 +6,7 @@
   "main": "src/index.js",
   "module": "src/index.js",
   "type": "module",
-  "exports": {
-    "import": "./src/index.js"
-  },
+  "exports": "./src/index.js",
   "types": "types/index.d.ts",
   "files": [
     "src",
