@@ -87,6 +87,13 @@ describe('analyze', it => {
 			for (let k in obj) {}
 			for (let v of obj) {}
 			try {} catch (e) {}
+			switch (baz) {
+				case 1:
+					break;
+				case 2: {
+					break;
+				}
+			}
 		`);
 
 		const { map } = analyze(program);
@@ -100,7 +107,7 @@ describe('analyze', it => {
 			}
 		});
 
-		assert.equal(scopes.length, 15);
+		assert.equal(scopes.length, 17);
 	});
 });
 

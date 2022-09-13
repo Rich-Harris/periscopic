@@ -63,10 +63,8 @@ export function analyze(expression) {
 				case 'ForStatement':
 				case 'ForInStatement':
 				case 'ForOfStatement':
-					map.set(node, current_scope = new Scope(current_scope, true));
-					break;
-
 				case 'BlockStatement':
+				case 'SwitchStatement':
 					map.set(node, current_scope = new Scope(current_scope, true));
 					break;
 
