@@ -15,17 +15,14 @@ export function analyze(expression) {
 
 	/** @type {[Scope, import('estree').Identifier][]} */
 	const references = [];
+	/** @type {Scope} */
 	let current_scope = scope;
 
 	walk(expression, {
-		/**
-		 * @param {Node} node
-		 * @param {any} parent
-		 */
 		enter(node, parent) {
 			switch (node.type) {
 				case 'Identifier':
-					if (is_reference(node, parent)) {
+					if (parent && is_reference(node, parent)) {
 						references.push([current_scope, node]);
 					}
 					break;
@@ -80,16 +77,17 @@ export function analyze(expression) {
 
 					if (node.param) {
 						extract_names(node.param).forEach(name => {
-							current_scope.declarations.set(name, node.param);
+							if (node.param) {
+								current_scope.declarations.set(name, node.param);
+							}
 						});
 					}
 					break;
 			}
 		},
 
-		/** @param {Node} node */
 		leave(node) {
-			if (map.has(node)) {
+			if (map.has(node) && current_scope !== null && current_scope.parent) {
 				current_scope = current_scope.parent;
 			}
 		}
@@ -110,7 +108,6 @@ export function analyze(expression) {
 }
 
 /**
- *
  * @param {Scope} scope
  * @param {string} name
  */
@@ -120,6 +117,10 @@ function add_reference(scope, name) {
 }
 
 export class Scope {
+	/**
+	 * @param {Scope | null} parent 
+	 * @param {boolean} block 
+	 */
 	constructor(parent, block) {
 		/** @type {Scope | null} */
 		this.parent = parent;
@@ -137,7 +138,9 @@ export class Scope {
 		this.references = new Set();
 	}
 
-	/** @param {import('estree').VariableDeclaration | import('estree').ClassDeclaration} node */
+	/**
+	 * @param {import('estree').VariableDeclaration | import('estree').ClassDeclaration} node
+	 */
 	add_declaration(node) {
 		if (node.type === 'VariableDeclaration') {
 			if (node.kind === 'var' && this.block && this.parent) {
@@ -224,7 +227,11 @@ export function extract_identifiers(param, nodes = []) {
 				if (element) extract_identifiers(element, nodes);
 			};
 
-			param.elements.forEach(handle_element);
+			param.elements.forEach((element) => {
+				if (element) {
+					handle_element(element)
+				}
+			});
 			break;
 
 		case 'RestElement':
