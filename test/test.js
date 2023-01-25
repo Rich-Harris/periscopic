@@ -1,6 +1,6 @@
 import * as uvu from 'uvu';
 import * as assert from 'uvu/assert';
-import acorn from 'acorn';
+import * as acorn from 'acorn';
 import { analyze, extract_identifiers, extract_names } from '../src/index.js';
 import { walk } from 'estree-walker';
 
