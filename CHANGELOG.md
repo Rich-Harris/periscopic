@@ -1,5 +1,11 @@
 # periscopic changelog
 
+## 3.1.0
+
+- Add `types` export ([#19](https://github.com/Rich-Harris/periscopic/pull/19))
+- Promote `@types/estree` to `dependencies` ([#19](https://github.com/Rich-Harris/periscopic/pull/19))
+- Update dependencies
+
 ## 3.0.4
 
 - Update `is-reference` ([#15](https://github.com/Rich-Harris/periscopic/pull/15))
