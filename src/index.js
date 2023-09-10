@@ -35,20 +35,18 @@ export function analyze(expression) {
 					if (parent && is_reference(node, parent)) {
 						references.push([current_scope, node]);
 					}
-					break;
+					return;
 
-				case 'ImportDeclaration':
-					node.specifiers.forEach((specifier) => {
-						current_scope.declarations.set(specifier.local.name, specifier);
-					});
-					break;
+				case 'ImportSpecifier':
+					current_scope.declarations.set(node.local.name, specifier);
+					return;
 				case 'ExportNamedDeclaration':
 					if (node.source) {
-						map.set(node, current_scope = new Scope(current_scope, true));
+						map.set(node, (current_scope = new Scope(current_scope, true)));
 						node.specifiers.forEach((specifier) => {
 							current_scope.declarations.set(specifier.local.name, specifier);
-						})
-						break;
+						});
+						return;
 					}
 
 				case 'FunctionExpression':
