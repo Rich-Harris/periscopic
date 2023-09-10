@@ -2,7 +2,7 @@ import * as uvu from 'uvu';
 import * as assert from 'uvu/assert';
 import * as acorn from 'acorn';
 import { analyze, extract_identifiers, extract_names } from '../src/index.js';
-import { walk } from 'estree-walker';
+import { walk } from 'zimmerframe';
 
 const parse = (str) =>
 	acorn.parse(str, {
@@ -93,11 +93,10 @@ describe('analyze', (it) => {
 		const { map } = analyze(program);
 		const scopes = [];
 
-		walk(program, {
-			enter(node) {
-				if (map.has(node)) {
-					scopes.push(node);
-				}
+		walk(program, null, {
+			_(node, { next }) {
+				if (map.has(node)) scopes.push(node);
+				next();
 			}
 		});
 

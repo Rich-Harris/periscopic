@@ -15,8 +15,17 @@ export function analyze(expression) {
 
 	/** @type {[Scope, import('estree').Identifier][]} */
 	const references = [];
+
 	/** @type {Scope} */
 	let current_scope = scope;
+
+	/**
+	 * @param {import('estree').Node} node
+	 * @param {boolean} block
+	 */
+	function push(node, block) {
+		map.set(node, (current_scope = new Scope(current_scope, block)));
+	}
 
 	walk(/** @type {import('estree').Node} */ (expression), null, {
 		_(node, context) {
@@ -42,9 +51,9 @@ export function analyze(expression) {
 							current_scope.declarations.set(node.id.name, node);
 						}
 
-						map.set(node, (current_scope = new Scope(current_scope, false)));
+						push(node, false);
 					} else {
-						map.set(node, (current_scope = new Scope(current_scope, false)));
+						push(node, false);
 
 						if (node.type === 'FunctionExpression' && node.id) {
 							current_scope.declarations.set(node.id.name, node);
@@ -61,11 +70,11 @@ export function analyze(expression) {
 				case 'ForStatement':
 				case 'ForInStatement':
 				case 'ForOfStatement':
-					map.set(node, (current_scope = new Scope(current_scope, true)));
+					push(node, true);
 					break;
 
 				case 'BlockStatement':
-					map.set(node, (current_scope = new Scope(current_scope, true)));
+					push(node, true);
 					break;
 
 				case 'ClassDeclaration':
@@ -74,7 +83,7 @@ export function analyze(expression) {
 					break;
 
 				case 'CatchClause':
-					map.set(node, (current_scope = new Scope(current_scope, true)));
+					push(node, true);
 
 					if (node.param) {
 						extract_names(node.param).forEach((name) => {
