@@ -8,7 +8,7 @@
 	"type": "module",
 	"exports": {
 		"types": "./types/index.js",
-		"import": "./src/index.js"
+		"default": "./src/index.js"
 	},
 	"types": "types/index.d.ts",
 	"files": [
