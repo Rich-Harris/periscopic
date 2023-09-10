@@ -42,6 +42,14 @@ export function analyze(expression) {
 						current_scope.declarations.set(specifier.local.name, specifier);
 					});
 					break;
+				case 'ExportNamedDeclaration':
+					if (node.source) {
+						map.set(node, current_scope = new Scope(current_scope, true));
+						node.specifiers.forEach((specifier) => {
+							current_scope.declarations.set(specifier.local.name, specifier);
+						})
+						break;
+					}
 
 				case 'FunctionExpression':
 				case 'FunctionDeclaration':
