@@ -1,4 +1,4 @@
-import { walk } from 'estree-walker';
+import { walk } from 'zimmerframe';
 import is_reference from 'is-reference';
 
 /** @param {import('estree').Node} expression */
@@ -18,10 +18,11 @@ export function analyze(expression) {
 	/** @type {Scope} */
 	let current_scope = scope;
 
-	walk(expression, {
-		enter(node, parent) {
+	walk(/** @type {import('estree').Node} */ (expression), null, {
+		_(node, context) {
 			switch (node.type) {
 				case 'Identifier':
+					const parent = context.path.at(-1);
 					if (parent && is_reference(node, parent)) {
 						references.push([current_scope, node]);
 					}
@@ -41,17 +42,17 @@ export function analyze(expression) {
 							current_scope.declarations.set(node.id.name, node);
 						}
 
-						map.set(node, current_scope = new Scope(current_scope, false));
+						map.set(node, (current_scope = new Scope(current_scope, false)));
 					} else {
-						map.set(node, current_scope = new Scope(current_scope, false));
+						map.set(node, (current_scope = new Scope(current_scope, false)));
 
 						if (node.type === 'FunctionExpression' && node.id) {
 							current_scope.declarations.set(node.id.name, node);
 						}
 					}
 
-					node.params.forEach(param => {
-						extract_names(param).forEach(name => {
+					node.params.forEach((param) => {
+						extract_names(param).forEach((name) => {
 							current_scope.declarations.set(name, node);
 						});
 					});
@@ -60,11 +61,11 @@ export function analyze(expression) {
 				case 'ForStatement':
 				case 'ForInStatement':
 				case 'ForOfStatement':
-					map.set(node, current_scope = new Scope(current_scope, true));
+					map.set(node, (current_scope = new Scope(current_scope, true)));
 					break;
 
 				case 'BlockStatement':
-					map.set(node, current_scope = new Scope(current_scope, true));
+					map.set(node, (current_scope = new Scope(current_scope, true)));
 					break;
 
 				case 'ClassDeclaration':
@@ -73,10 +74,10 @@ export function analyze(expression) {
 					break;
 
 				case 'CatchClause':
-					map.set(node, current_scope = new Scope(current_scope, true));
+					map.set(node, (current_scope = new Scope(current_scope, true)));
 
 					if (node.param) {
-						extract_names(node.param).forEach(name => {
+						extract_names(node.param).forEach((name) => {
 							if (node.param) {
 								current_scope.declarations.set(name, node.param);
 							}
@@ -84,9 +85,9 @@ export function analyze(expression) {
 					}
 					break;
 			}
-		},
 
-		leave(node) {
+			context.next();
+
 			if (map.has(node) && current_scope !== null && current_scope.parent) {
 				current_scope = current_scope.parent;
 			}
@@ -118,8 +119,8 @@ function add_reference(scope, name) {
 
 export class Scope {
 	/**
-	 * @param {Scope | null} parent 
-	 * @param {boolean} block 
+	 * @param {Scope | null} parent
+	 * @param {boolean} block
 	 */
 	constructor(parent, block) {
 		/** @type {Scope | null} */
@@ -148,11 +149,11 @@ export class Scope {
 			} else {
 				/** @param {import('estree').VariableDeclarator} declarator */
 				const handle_declarator = (declarator) => {
-					extract_names(declarator.id).forEach(name => {
+					extract_names(declarator.id).forEach((name) => {
 						this.declarations.set(name, node);
 						if (declarator.init) this.initialised_declarations.add(name);
-					});;
-				}
+					});
+				};
 
 				node.declarations.forEach(handle_declarator);
 			}
@@ -186,7 +187,7 @@ export class Scope {
  * @returns {string[]}
  */
 export function extract_names(param) {
-	return extract_identifiers(param).map(node => node.name);
+	return extract_identifiers(param).map((node) => node.name);
 }
 
 /**
@@ -229,7 +230,7 @@ export function extract_identifiers(param, nodes = []) {
 
 			param.elements.forEach((element) => {
 				if (element) {
-					handle_element(element)
+					handle_element(element);
 				}
 			});
 			break;

@@ -27,7 +27,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"@types/estree": "^1.0.0",
-		"estree-walker": "^3.0.0",
-		"is-reference": "^3.0.0"
+		"is-reference": "^3.0.0",
+		"zimmerframe": "^1.0.0"
 	}
 }

@@ -4,10 +4,11 @@ import * as acorn from 'acorn';
 import { analyze, extract_identifiers, extract_names } from '../src/index.js';
 import { walk } from 'estree-walker';
 
-const parse = str => acorn.parse(str, {
-	ecmaVersion: 2019,
-	sourceType: 'module'
-});
+const parse = (str) =>
+	acorn.parse(str, {
+		ecmaVersion: 2019,
+		sourceType: 'module'
+	});
 
 function describe(name, fn) {
 	const suite = uvu.suite(name);
@@ -19,7 +20,7 @@ function pojo(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
 
-describe('analyze', it => {
+describe('analyze', (it) => {
 	it('analyzes a program', () => {
 		const program = parse(`
 			const a = b;
@@ -75,7 +76,7 @@ describe('analyze', it => {
 
 		const { scope } = analyze(program);
 
-		assert.equal(scope.references, new Set(['foo', 'bar', 'baz']))
+		assert.equal(scope.references, new Set(['foo', 'bar', 'baz']));
 	});
 
 	it('tracks all scopes', () => {
@@ -104,7 +105,7 @@ describe('analyze', it => {
 	});
 });
 
-describe('extract_identifiers', it => {
+describe('extract_identifiers', (it) => {
 	it('extracts identifier nodes', () => {
 		const program = parse(`
 			function foo({ a, b: [c, d] = e }) {
@@ -122,7 +123,7 @@ describe('extract_identifiers', it => {
 	});
 });
 
-describe('extract_names', it => {
+describe('extract_names', (it) => {
 	it('extracts identifier nodes', () => {
 		const program = parse(`
 			function foo({ a, b: [c, d] = e }) {
@@ -136,7 +137,7 @@ describe('extract_names', it => {
 	});
 });
 
-describe('extract_globals', it => {
+describe('extract_globals', (it) => {
 	it('extract globals correctly', () => {
 		const program = parse(`
 			const a = b;
