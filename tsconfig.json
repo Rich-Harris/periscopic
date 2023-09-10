@@ -2,11 +2,13 @@
 	"compilerOptions": {
 		"checkJs": true,
 		"strict": true,
-		"module": "node16",
-		"target": "es2017",
+		"lib": ["es2022"],
+		"module": "es2022",
+		"target": "es2022",
 		"declaration": true,
 		"emitDeclarationOnly": true,
-		"outDir": "types"
+		"outDir": "types",
+		"moduleResolution": "nodenext"
 	},
 
 	"include": [
