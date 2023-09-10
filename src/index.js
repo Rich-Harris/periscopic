@@ -38,16 +38,17 @@ export function analyze(expression) {
 					return;
 
 				case 'ImportSpecifier':
-					current_scope.declarations.set(node.local.name, specifier);
+					current_scope.declarations.set(node.local.name, node);
 					return;
 				case 'ExportNamedDeclaration':
 					if (node.source) {
 						map.set(node, (current_scope = new Scope(current_scope, true)));
-						node.specifiers.forEach((specifier) => {
+						for (const specifier of node.specifiers) {
 							current_scope.declarations.set(specifier.local.name, specifier);
-						});
+						}
 						return;
 					}
+					break;
 
 				case 'FunctionExpression':
 				case 'FunctionDeclaration':
@@ -66,11 +67,11 @@ export function analyze(expression) {
 						}
 					}
 
-					node.params.forEach((param) => {
-						extract_names(param).forEach((name) => {
+					for (const param of node.params) {
+						for (const name of extract_names(param)) {
 							current_scope.declarations.set(name, node);
-						});
-					});
+						}
+					}
 					break;
 
 				case 'ForStatement':
@@ -90,11 +91,11 @@ export function analyze(expression) {
 					push(node, true);
 
 					if (node.param) {
-						extract_names(node.param).forEach((name) => {
+						for (const name of extract_names(node.param)) {
 							if (node.param) {
 								current_scope.declarations.set(name, node.param);
 							}
-						});
+						}
 					}
 					break;
 			}
@@ -160,15 +161,12 @@ export class Scope {
 			if (node.kind === 'var' && this.block && this.parent) {
 				this.parent.add_declaration(node);
 			} else {
-				/** @param {import('estree').VariableDeclarator} declarator */
-				const handle_declarator = (declarator) => {
-					extract_names(declarator.id).forEach((name) => {
+				for (const declarator of node.declarations) {
+					for (const name of extract_names(declarator.id)) {
 						this.declarations.set(name, node);
 						if (declarator.init) this.initialised_declarations.add(name);
-					});
-				};
-
-				node.declarations.forEach(handle_declarator);
+					}
+				}
 			}
 		} else if (node.id) {
 			this.declarations.set(node.id.name, node);
@@ -223,29 +221,21 @@ export function extract_identifiers(param, nodes = []) {
 			break;
 
 		case 'ObjectPattern':
-			/** @param {import('estree').Property | import('estree').RestElement} prop */
-			const handle_prop = (prop) => {
+			for (const prop of param.properties) {
 				if (prop.type === 'RestElement') {
 					extract_identifiers(prop.argument, nodes);
 				} else {
 					extract_identifiers(prop.value, nodes);
 				}
-			};
+			}
 
-			param.properties.forEach(handle_prop);
 			break;
 
 		case 'ArrayPattern':
-			/** @param {import('estree').Node} element */
-			const handle_element = (element) => {
+			for (const element of param.elements) {
 				if (element) extract_identifiers(element, nodes);
-			};
+			}
 
-			param.elements.forEach((element) => {
-				if (element) {
-					handle_element(element);
-				}
-			});
 			break;
 
 		case 'RestElement':

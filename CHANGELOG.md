@@ -1,5 +1,9 @@
 # periscopic changelog
 
+## 4.0.2
+
+- Fix bugs
+
 ## 4.0.1
 
 - Bump deps
