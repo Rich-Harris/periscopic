@@ -1,5 +1,9 @@
 # periscopic changelog
 
+## 4.0.1
+
+- Bump deps
+
 ## 4.0.0
 
 - Switch from `estree-walker` to `zimmerframe` ([#20](https://github.com/Rich-Harris/periscopic/pull/20))
