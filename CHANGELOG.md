@@ -1,5 +1,12 @@
 # periscopic changelog
 
+## 4.0.0
+
+- Switch from `estree-walker` to `zimmerframe` ([#20](https://github.com/Rich-Harris/periscopic/pull/20))
+- Create scope for `SwitchStatement` ([#18](https://github.com/Rich-Harris/periscopic/pull/18))
+- Expose `default` key in `pkg.exports` rather than `import` ([#17](https://github.com/Rich-Harris/periscopic/pull/17))
+- Don't treat `export-from` specifiers as global references ([#16](https://github.com/Rich-Harris/periscopic/pull/16))
+
 ## 3.1.0
 
 - Add `types` export ([#19](https://github.com/Rich-Harris/periscopic/pull/19))
