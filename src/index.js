@@ -70,10 +70,8 @@ export function analyze(expression) {
 				case 'ForStatement':
 				case 'ForInStatement':
 				case 'ForOfStatement':
-					push(node, true);
-					break;
-
 				case 'BlockStatement':
+				case 'SwitchStatement':
 					push(node, true);
 					break;
 
