@@ -11,7 +11,7 @@ import { analyze } from 'periscopic';
 const ast = acorn.parse(`
 const a = b;
 console.log(a);
-`);
+`, { ecmaVersion: 2022 });
 
 const { map, globals, scope } = analyze(ast);
 ```
@@ -46,7 +46,7 @@ import { extract_identifiers, extract_names } from 'periscopic';
 
 const ast = acorn.parse(`
 const { a, b: [c, d] = e } = opts;
-`);
+`, { ecmaVersion: 2022 });
 
 const lhs = ast.body[0].declarations[0].id;
 
