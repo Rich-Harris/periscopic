@@ -1,5 +1,11 @@
 # periscopic changelog
 
+## 4.0.3
+
+### Patch Changes
+
+- 6519a40: fix: handle ImportDefaultSpecifier nodes
+
 ## 4.0.2
 
 - Fix bugs
