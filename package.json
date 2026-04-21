@@ -37,5 +37,8 @@
 		"is-reference": "^3.0.2",
 		"zimmerframe": "^1.0.0"
 	},
-	"packageManager": "pnpm@10.33.0"
+	"packageManager": "pnpm@10.33.0",
+	"publishConfig": {
+		"access": "public"
+	}
 }
