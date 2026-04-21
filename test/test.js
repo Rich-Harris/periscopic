@@ -109,6 +109,28 @@ describe('analyze', (it) => {
 
 		assert.equal(scopes.length, 17);
 	});
+
+	it('supports ESM', () => {
+		const program = parse(`
+			import defaultImport from 'module';
+			import { namedImport } from 'module';
+			export const namedConst = '';
+			export function namedFunction() {}
+			export class NamedClass {}
+			export default function defaultFunction() {}
+		`)
+
+		const { scope } = analyze(program);
+
+		assert.equal([...scope.declarations.keys()], [
+			'defaultImport',
+			'namedImport',
+			'namedConst',
+			'namedFunction',
+			'NamedClass',
+			'defaultFunction',
+		])
+	})
 });
 
 describe('extract_identifiers', (it) => {
