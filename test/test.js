@@ -130,7 +130,27 @@ describe('analyze', (it) => {
 			'NamedClass',
 			'defaultFunction',
 		])
-	})
+	});
+
+	it('restores root scope after re-export declarations', () => {
+		const program = parse(`
+			import { createRequire } from 'node:module';
+			export { foo } from './reexport.js';
+			const customRequire = createRequire;
+		`);
+
+		const { map, scope } = analyze(program);
+		const exportNode = program.body.find(
+			node => node.type === 'ExportNamedDeclaration'
+		);
+		const exportScope = map.get(exportNode);
+
+		assert.ok(exportScope);
+		assert.ok(exportScope !== scope);
+		assert.equal(scope.find_owner('createRequire'), scope);
+		assert.equal(scope.find_owner('customRequire'), scope);
+		assert.not.ok(exportScope.declarations.has('customRequire'));
+	});
 });
 
 describe('extract_identifiers', (it) => {
