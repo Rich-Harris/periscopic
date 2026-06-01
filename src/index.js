@@ -43,10 +43,14 @@ export function analyze(expression) {
 					return;
 				case 'ExportNamedDeclaration':
 					if (node.source) {
-						map.set(node, (current_scope = new Scope(current_scope, true)));
+						const parent_scope = current_scope;
+						map.set(node, (current_scope = new Scope(parent_scope, true)));
 						for (const specifier of node.specifiers) {
-							current_scope.declarations.set(specifier.local.name, specifier);
+							if (specifier.local.type === 'Identifier') {
+								current_scope.declarations.set(specifier.local.name, specifier);
+							}
 						}
+						current_scope = parent_scope;
 						return;
 					}
 					break;
