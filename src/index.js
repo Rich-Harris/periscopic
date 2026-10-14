@@ -83,6 +83,13 @@ export function analyze(expression) {
 					push(node, true);
 					break;
 
+				case 'ClassExpression':
+					push(node, true);
+					if (node.id) {
+						current_scope.declarations.set(node.id.name, node);
+					}
+					break;
+
 				case 'ClassDeclaration':
 				case 'VariableDeclaration':
 					current_scope.add_declaration(node);
