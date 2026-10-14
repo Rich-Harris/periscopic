@@ -110,6 +110,74 @@ describe('analyze', (it) => {
 		assert.equal(scopes.length, 17);
 	});
 
+	it('creates a scope for a named class expression', () => {
+		const program = parse('(class Foo {})');
+		const expression = program.body[0].expression;
+		const { map, globals, scope } = analyze(program);
+		const class_scope = map.get(expression);
+
+		assert.ok(class_scope);
+		assert.is(class_scope.parent, scope);
+		assert.is(class_scope.block, true);
+		assert.is(class_scope.declarations.get('Foo'), expression);
+		assert.equal([...globals.keys()], []);
+		assert.not.ok(scope.has('Foo'));
+	});
+
+	it('resolves class expression self-references without leaking the binding', () => {
+		const program = parse(`
+			const value = class Foo extends Foo {
+				[Foo.name]() { return Foo; }
+			};
+			Foo;
+			const after = 1;
+		`);
+		const expression = program.body[0].declarations[0].init;
+		const method = expression.body.body[0].value;
+		const outside = program.body[1].expression;
+		const { map, globals, scope } = analyze(program);
+		const class_scope = map.get(expression);
+
+		assert.ok(class_scope);
+		assert.is(map.get(method).find_owner('Foo'), class_scope);
+		assert.is(class_scope.find_owner('Foo'), class_scope);
+		assert.equal([...globals.keys()], ['Foo']);
+		assert.is(globals.get('Foo'), outside);
+		assert.not.ok(scope.has('Foo'));
+		assert.ok(scope.declarations.has('value'));
+		assert.ok(scope.declarations.has('after'));
+	});
+
+	it('keeps class expression names separate from outer bindings', () => {
+		const program = parse(`
+			const Foo = 1;
+			const value = class Foo { method() { return Foo + external; } };
+			Foo;
+		`);
+		const expression = program.body[1].declarations[0].init;
+		const { map, globals, scope } = analyze(program);
+		const class_scope = map.get(expression);
+
+		assert.ok(class_scope);
+		assert.is(class_scope.declarations.get('Foo'), expression);
+		assert.is(scope.declarations.get('Foo'), program.body[0]);
+		assert.equal([...globals.keys()], ['external']);
+	});
+
+	it('preserves anonymous class expressions and class declarations', () => {
+		const program = parse(`
+			const value = class extends Base { method() { return external; } };
+			class Named { method() { return Named; } }
+			const after = 1;
+		`);
+		const expression = program.body[0].declarations[0].init;
+		const { map, globals, scope } = analyze(program);
+
+		assert.equal([...globals.keys()].sort(), ['Base', 'external']);
+		assert.equal([...scope.declarations.keys()], ['value', 'Named', 'after']);
+		assert.equal(map.get(expression).declarations.size, 0);
+	});
+
 	it('supports ESM', () => {
 		const program = parse(`
 			import defaultImport from 'module';
