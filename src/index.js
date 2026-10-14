@@ -256,4 +256,4 @@ export function extract_identifiers(param, nodes = []) {
 	}
 
 	return nodes;
-			}
+}
