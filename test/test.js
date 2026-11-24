@@ -131,6 +131,18 @@ describe('analyze', (it) => {
 			'defaultFunction',
 		])
 	})
+
+	it('declares namespace imports', () => {
+		const program = parse(`
+			import * as utils from './utils.js';
+			utils.run();
+		`)
+
+		const { scope, globals } = analyze(program);
+
+		assert.equal([...scope.declarations.keys()], ['utils']);
+		assert.equal([...globals.keys()], []);
+	})
 });
 
 describe('extract_identifiers', (it) => {

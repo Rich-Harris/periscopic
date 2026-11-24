@@ -38,6 +38,7 @@ export function analyze(expression) {
 					return;
 
 				case 'ImportDefaultSpecifier':
+				case 'ImportNamespaceSpecifier':
 				case 'ImportSpecifier':
 					current_scope.declarations.set(node.local.name, node);
 					return;
